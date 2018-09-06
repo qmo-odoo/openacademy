@@ -25,7 +25,7 @@
     'data': [
         "views/task_template.xml",
         "views/task.xml",
-        "data/coopplanning_data.xml",
+        "views/configuration.xml",
         "data/task_template_demo.xml",
     ],
     # only loaded in demonstration mode

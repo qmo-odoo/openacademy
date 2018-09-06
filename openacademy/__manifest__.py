@@ -8,7 +8,8 @@
     'data': [
         'views/views.xml',
         'views/course_views.xml',
-        'views/session_views.xml'
+        'views/session_views.xml',
+        'views/inherited_attendee.xml'
         ],
     'description': "Only the basic to get you started",
     'application': True,

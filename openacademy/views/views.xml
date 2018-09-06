@@ -21,8 +21,7 @@
 
     <menuitem
         id="openacademy_root_menu"
-        name="OpenAcademy" 
-/>
+        name="OpenAcademy" />
 
     <menuitem
         id="openacademy_course_menu"

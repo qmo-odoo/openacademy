@@ -56,7 +56,15 @@
                                 'invisible': [('floating','=',True)]
                                 }"
                             nolabel="1" 
-                        />
+                        >
+                            <tree>
+                                <field name="name"/>
+                                <field name="email"/>
+                                <field name="phone"/>
+                                <field name="category_id" widget="many2many_tags"/>
+                                <field name="lang"/>
+                            </tree>
+                        </field>
                 </sheet>
             </form>
         </field>
@@ -88,7 +96,7 @@
     <!-- Top menu item -->
     <menuitem name="CoopPlanning" id="menu_root"/>
     <!-- menu categories -->
-    <menuitem name="Templates" id="menu_template_top" parent="menu_root"/>
+    <menuitem name="Templates" id="menu_template_top" parent="menu_root" sequence="2"/>
     <!-- actions -->
     <menuitem name="Task" id="menu_task_template" parent="menu_template_top"
               action="action_task_template"/>

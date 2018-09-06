@@ -1,0 +1,95 @@
+<odoo>
+    <record model="ir.ui.view" id="task_template_view_tree">
+        <field name="name">Task Template List</field>
+        <field name="model">coopplanning.task.template</field>
+        <field name="arch" type="xml">
+            <tree decoration-bf="active" decoration-success="active" decoration-danger="active == False">
+                <field name="task_type_id" />
+                <field name="name" />
+                <field name="day_nb_id" />
+                <field name="start_time" widget="float_time"/>
+                <field name="end_time" widget="float_time"/>
+                <field name="duration" widget="float_time"/>
+                <field name="worker_nb" />
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="task_template_view_form">
+        <field name="name">Task Template Form</field>
+        <field name="model">coopplanning.task.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button type="object" name="generate_task" string="Generate Task for Today" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="task_type_id" options="{'no_create': True, 'no_edit': True}"   attrs="{'required': True}"/>
+                            <field name="day_nb_id" 
+                                options="{
+                                    'no_create': True,
+                                    'no_edit': True
+                                }" attrs="{'required': True}"/>
+                            <field name="worker_nb" />
+                            <field name="active" />
+                        </group>
+                        <group>
+                            <field name="start_time" widget="float_time"/>
+                            <field name="end_time"  widget="float_time"/>
+                            <field name="duration"  widget="float_time"/>
+                            <field name="floating" />
+                        </group>
+                    </group>
+                        <separator string="Pre defined Worker" attrs="{'invisible': [('floating','=',True)]}"/>
+                        <field 
+                            name="worker_ids"
+                             attrs="{
+                                'readonly': [('floating','=',True)],
+                                'invisible': [('floating','=',True)]
+                                }"
+                            nolabel="1" 
+                        />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="search_task_templates" model="ir.ui.view">
+        <field name="model">coopplanning.task.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="task_type_name" />
+                <field name="task_type_area"/>
+                <field name="day_number"/>
+                <filter name="my_actifs" string="Actives" domain="[('active', '=', True)]"/>
+                <filter name="not_active" string="Archived" domain="[('active', '=', False)]"/>
+               
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record model="ir.actions.act_window" id="action_task_template">
+      <field name="name">Task Template Action</field>
+      <field name="res_model">coopplanning.task.template</field>
+      <field name="view_mode">tree,form</field>
+      <field name="domain">['|',('active', '=', False), ('active', '=', True)]</field>
+      <field name="search_view_id" ref="search_task_templates"/>
+    </record>
+
+    <!-- Top menu item -->
+    <menuitem name="CoopPlanning" id="menu_root"/>
+    <!-- menu categories -->
+    <menuitem name="Templates" id="menu_template_top" parent="menu_root"/>
+    <!-- actions -->
+    <menuitem name="Task" id="menu_task_template" parent="menu_template_top"
+              action="action_task_template"/>
+</odoo>

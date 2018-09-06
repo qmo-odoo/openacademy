@@ -1,0 +1,32 @@
+<odoo>
+    <record id="tree_all_sessions" model="ir.ui.view">
+        <field name="model">openacademy.session</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="course_name"/>
+                <field name="instructor_name"/>
+                <field name="seats" />
+                <field name="start_date"/>
+                <field name="seats_filled" widget="progressbar"/>
+            </tree>          
+        </field>
+    </record>
+
+    <record id="form_all_sessions" model="ir.ui.view">
+        <field name="model">openacademy.session</field>
+        <field name="arch" type="xml">
+            <form>
+                <group name="my_session_1">
+                    <field name="course_id"/>
+                    <field name="user_id"/>
+                    <field name="start_date"/>
+                </group>
+                <group name="my_session_2">
+                    <field name="seats"/>
+                    <field name="attendee_ids" widget="many2many_tags"/>
+                </group>
+                
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -13,13 +13,13 @@ class Sessions(models.Model):
     course_name = fields.Char(related="course_id.name", string="Course")
     instructor_name = fields.Char(related="user_id.name", string="Instructor")
 
-    _sql_constraints = [
-        (
-            'restrict_attendees',
-            'CHECK(COUNT(attendee_ids) < seats)',
-            'Not enough room for that many students'
-        )
-    ]
+    # _sql_constraints = [
+    #     (
+    #         'restrict_attendees',
+    #         'CHECK(COUNT(attendee_ids) < seats)',
+    #         'Not enough room for that many students'
+    #     )
+    # ]
 
     seats_filled = fields.Float(compute="_compute_seats_filled", string="Seats Taken")
     

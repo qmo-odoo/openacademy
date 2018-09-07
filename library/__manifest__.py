@@ -19,12 +19,16 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base', 'product'],
 
     # always loaded
     'data': [
         "data/library_data.xml",
-        "data/views.xml",
+        "views/menus.xml",
+        "views/customer.xml",
+        "views/book.xml",
+        "views/author.xml",
+        "views/rental.xml",
     ],
     # only loaded in demonstration mode
     'demo': [],

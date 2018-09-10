@@ -4,6 +4,8 @@ from odoo import models, fields, api, exceptions, _
 class Books(models.Model):
     _inherit = 'product.product'
 
+    title = fields.Char(default="test")
+
     author_ids = fields.Many2many(
         comodel_name="res.partner",
         string="Authors",
@@ -16,8 +18,10 @@ class Books(models.Model):
         string='Publisher',
         domain=[('publisher','=',True), ],
     )
+    
     rental_ids = fields.One2many(
         'library.rental',
         'book_id',
         string='Rentals',)
+    
     book = fields.Boolean('is a book', default=False)

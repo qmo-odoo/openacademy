@@ -26,6 +26,8 @@
                       </group>
                       <notebook>
                           <page string="Rentals" name="rentals" >
+                            <h2>Total : <field name="debt" widget="monetary"/></h2>
+                            <field name="currency_id" invisible="1"/>
                               <field name="rental_ids" readonly="1">
                                   <tree >
                                       <field name="book_id"/>

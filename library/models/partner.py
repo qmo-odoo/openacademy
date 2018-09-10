@@ -19,4 +19,39 @@ class Partner(models.Model):
         'res.country',
         'Nationality',
     )
-    birthdate =  fields.Date('Birthdate',)
+    birthdate =  fields.Date('Birthdate')
+
+
+    currency_id = fields.Many2one(
+        'res.currency',
+        compute="_get_currency"
+    )
+
+    debt = fields.Monetary(
+        compute="_compute_debt",
+        currency_field='currency_id',
+        string="Loan price"
+        )
+
+
+
+    
+    
+    @api.depends('rental_ids')
+    def _get_currency(self):
+        for record in self:
+            if record.rental_ids[0]:
+                record.currency_id = record.rental_ids[0].book_id.currency_id.id
+
+            
+
+    @api.depends('rental_ids','rental_ids.cleared')
+    def _compute_debt(self):
+        for record in self:
+            record.debt = 0
+            for rental in record.rental_ids:
+                if not record.currency_id:
+                    record.currency_id = record.rental_ids[0].book_id.currency_id.id
+                if not rental.cleared:
+                    record.debt += rental.book_id.lst_price
+

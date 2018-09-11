@@ -7,6 +7,16 @@
             <field name="model">product.product</field>
             <field name="arch" type="xml">
                 <form>
+                    
+                        <button class="oe_stat_button" type="object"
+                            name="action_get_rentals_infos" icon="fa-calendar">
+                           <div class="o_stat_info">
+                                    <field name="rental_count" class="o_stat_value"/>
+                                    <span class="o_stat_text" attrs="{'invisible': [('rental_count', '&lt;', 2)]}"> Rentals</span>
+                                    <span class="o_stat_text" attrs="{'invisible': [('rental_count', '&gt;', 1)]}"> Rental</span>
+                            </div>
+                        </button>
+                    
                     <sheet>
                         <field name="image" widget='image' class="oe_left oe_avatar" />
                         <div class="oe_title oe_left">
@@ -15,7 +25,6 @@
                             </h1>
                         </div>
                         <group>
-                            <field name="price"/>
                             <field name="author_ids" context="{'default_author': True}" widget="many2many_tags"/>
                             <field name="edition_date"/>
                             <field name="isbn"/>
@@ -50,6 +59,17 @@
             </field>
         </record>
 
+        <!-- <record id="book_rental_infos" model="ir.ui.view">
+            <field name="name">book.rental.infos.view</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                
+                <tree>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record> -->
+
         <record model="ir.actions.act_window" id="action_book">
             <field name="name">Books</field>
             <field name="res_model">product.product</field>
@@ -72,6 +92,53 @@
         <!-- actions -->
         <menuitem name="Books" id="menu_book" parent="menu_book_top"
                   action="action_book"/>
+        
+        <record id='library_loan_wizard_form' model='ir.ui.view'>
+            <field name="name">library loan wizard form</field>
+            <field name="model">library.wizard</field>
+            <field name="arch" type="xml">
+                <form string="New rental">
+                    <h1>New rental</h1>
+                    <field name="wizard_step1" invisible="1"/>
+                    <field name="book_ids" attrs="{'invisible': [('wizard_step1', '=', True )]}">
+                        <tree>
+                            <field name="name"/>
+                            <field name="author_ids" widget="many2many_tags"/>
+                        </tree>
+                    </field>
+                    <group attrs="{'invisible': [('wizard_step1', '=', False )]}">
+                        <field name="partner_id" >
+                            <tree>
+                                <field name="name"/>
+                            </tree>
+                        </field>
+                        <field name="rental_date"/>
+                        <field name="return_date"/>
+                    </group>
+                   
+                    <footer>
+                        <button type="object" name="next" string="suivant" attrs="{'invisible': [('wizard_step1', '=', True )]}"/>
+                        <button type="object" name="back" string="back" attrs="{'invisible': [('wizard_step1', '=', False )]}"/>
+                        <button type="object" name="submit" string="submit" attrs="{'invisible': [('wizard_step1', '=', False )]}"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window id="wizard_book_rent"
+            name="New rental"
+            res_model="library.wizard"
+            view_mode="form"
+            target="new"
+        />
+
+        <menuitem
+            id="menu_wizard_loan_books" 
+            name="Rent books" 
+            parent="menu_book_top"
+            action="wizard_book_rent"/>
+
+      
 
     </data>
 </odoo>

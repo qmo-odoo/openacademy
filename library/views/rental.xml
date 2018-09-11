@@ -8,17 +8,11 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
-                        <header>
-                            <button type="object" string="Payment Status"/>
-                            <button type="object" string="Fine"/>
-                            <button type="object" name="clear_rental" string="Clear"/>
-                        </header>
                         <group>
                             <field name="customer_id" context="{'default_customer': True}"/>
                             <field name="book_id" context="{'default_book': True}"/>
                             <field name="rental_date"/>
                             <field name="return_date"/>
-                            <field name="cleared"/>
                         </group>
                     </sheet>
                 </form>

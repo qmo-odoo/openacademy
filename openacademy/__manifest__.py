@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Open Academy",
+    'name': "Module 07 - ex 01",
 
     'summary': """
-        Academy module - module 06 - ex 01""",
+        Academy module - module 07 - ex 01""",
 
     'description': """
         
@@ -19,7 +19,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','mail'],
+    'depends': ['base'],
 
     # always loaded
     'data': [

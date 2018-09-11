@@ -18,13 +18,5 @@ class Rentals(models.Model):
         domain=[('book','=',True)],
         required=True,
     )
-
-    cleared = fields.Boolean(default=False)
-
     rental_date =  fields.Date(string='Rental date', required=True, default=lambda self: fields.Date.today())
     return_date =  fields.Date(string='Return date', required=True)
-    
-    @api.multi
-    def clear_rental(self):
-        self.cleared = True
-

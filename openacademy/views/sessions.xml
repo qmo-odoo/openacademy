@@ -8,7 +8,6 @@
             <field name="arch" type="xml">
                 <tree decoration-bf="(taken_seats &gt; 70)"
                       colors="#0000ff:duration&lt;5;red:duration&gt;15"
-                      decoration-success="taken_seats &gt; 50"
                       default_order="start_date">
                     <field name="name"/>
                     <field name="course_id" />
@@ -18,7 +17,6 @@
                     <field name="seats" />
                     <field name="taken_seats" widget="progressbar"/>
                     <field name="attendees_count" />
-                    <field name="is_ready" invisible="1"/>
                 </tree>
             </field>
         </record>
@@ -28,9 +26,6 @@
             <field name="model">openacademy.session</field>
             <field name="arch" type="xml">
                 <form>
-                    <header>
-                        <field name="state" widget="statusbar" />
-                    </header>
                     <sheet>
                         <group>
                             <group>
@@ -49,15 +44,10 @@
                                 <field name="percentage_per_day" nolabel="1"/>
                                 <field name="seats" />
                                 <field name="taken_seats" widget="progressbar"/>
-                                <field name="is_ready"/>
                             </group>
                         </group>
                         <label for="attendee_ids"/>
                         <field name="attendee_ids"/>
-                        <div class="oe_chatter">
-                            <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
-                            <field name="message_ids" widget="mail_thread"/>
-                        </div>
                     </sheet>
                 </form>
             </field>

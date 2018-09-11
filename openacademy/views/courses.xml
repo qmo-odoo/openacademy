@@ -20,6 +20,11 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
+                        <header>
+                                <button class="oe_stat_button" type="object"
+                                name="action_get_participants" icon="fa-calendar" string="Participants">
+                            </button>
+                        </header>
                         <group>
                             <field name="name"/>
                             <field name="responsible_id" />
@@ -38,6 +43,8 @@
                                         <field name="duration" />
                                         <field name="percentage_per_day" />
                                         <field name="seats" />
+                                        <field name="attendee_ids" invisible="1"/>
+                                        
                                     </tree>
                                 </field>
                             </page>

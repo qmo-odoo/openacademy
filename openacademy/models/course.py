@@ -41,10 +41,31 @@ class Course(models.Model):
         for course in self:
             course.session_count = len(course.session_ids)
 
+    @api.multi
+    def action_get_participants(self):
+
+        attendees = []
+        for session in self.session_ids:
+            for attendee in session.attendee_ids:
+                attendees.append(attendee.id)
+        
+        
+        
+        return {
+            'view_type': 'form',
+            'view_mode': 'tree,form',
+            'res_model': 'res.partner',
+            'view_id': False,
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+            'context': {
+                'course_attendee_ids': attendees
+                },
+            'domain': [('id', 'in', attendees)]
+        }
 
 class Session(models.Model):
     _name = 'openacademy.session'
-    _inherit = ['mail.thread']
     _order = 'name'
 
     name = fields.Char(required=True)
@@ -56,7 +77,7 @@ class Session(models.Model):
     seats = fields.Integer(string="Number of seats")
     instructor_id = fields.Many2one('res.partner', string="Instructor") #No ondelete = set null
     course_id = fields.Many2one('openacademy.course', ondelete='cascade', string="Course", required=True)
-    attendee_ids = fields.Many2many('res.partner', string="Attendees")
+    attendee_ids = fields.Many2many('res.partner', string="Attendees", domain=[('company_type', '=', 'person')])
     taken_seats = fields.Float(string="Taken seats", compute='_taken_seats')
     level = fields.Selection(related='course_id.level', readonly=True)
     responsible_id = fields.Many2one(related='course_id.responsible_id', readonly=True, store=True)
@@ -64,52 +85,11 @@ class Session(models.Model):
     percentage_per_day = fields.Integer("%", default=100)
     attendees_count = fields.Integer(string="Attendees count", compute='_get_attendees_count', store=True)
 
-    is_ready = fields.Boolean(compute="_computed_ready", track_visibility="onchange")
-
-    state = fields.Selection([
-        ('preparation', "In Preparation"),
-        ('ready', "ready")
-    ],
-    default="preparation"
-    )
-
     def _warning(self, title, message):
         return {'warning': {
             'title': title,
             'message': message,
         }}
-    
-    @api.depends('taken_seats')
-    def _computed_ready(self):
-        for session in self:
-            session.is_ready = session.taken_seats > 50
-            if session.taken_seats > 50:
-                session.state = "ready"
-            else: 
-                session.state = "preparation"
-    
-    @api.model
-    def create(self,values):
-        sess = super(Session, self).create(values)
-        sess.message_subscribe([sess.instructor_id.id])
-        sess.message_subscribe_users([sess.responsible_id.id])
-        if sess.is_ready:
-            sess.message_post(body="Session for {} is ready".format(sess.course_id.name))
-        
-        return sess
-
-    @api.multi
-    def write(self, values):
-        session = super(Session, self).write(values)
-        if "instructor_id" in values:
-            self.message_subscribe([self.instructor_id.id])
-        if "attendee_ids" in values or "seats" in values:
-            if self.taken_seats > 50:
-                self.message_post(body="Session for {} is ready".format(self.course_id.name))
-        
-        return session
-            
-                
 
     @api.depends('seats', 'attendee_ids')
     def _taken_seats(self):
@@ -118,7 +98,7 @@ class Session(models.Model):
                 session.taken_seats = 0.0
             else:
                 session.taken_seats = 100.0 * len(session.attendee_ids) / session.seats
-            
+
     @api.depends('attendee_ids')
     def _get_attendees_count(self):
         for session in self:
@@ -157,3 +137,5 @@ class Session(models.Model):
                 start_date = fields.Datetime.from_string(session.start_date)
                 end_date = fields.Datetime.from_string(session.end_date)
                 session.duration = (end_date - start_date).days + 1
+
+    

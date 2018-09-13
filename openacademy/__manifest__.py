@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Module 07 - ex 01",
+    'name': "Module 08",
 
     'summary': """
-        Academy module - module 07 - ex 01""",
+        Academy module - module 08""",
 
     'description': """
         
@@ -19,11 +19,12 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base', 'mail'],
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/academy_security.xml',
+        'security/ir.model.access.csv',
         'data/data.xml',
         'views/courses.xml',
         'views/sessions.xml',

@@ -20,13 +20,25 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
-                        <header>
-                                <button class="oe_stat_button" type="object"
-                                name="action_get_participants" icon="fa-calendar" string="Participants">
+                        <div class="oe_button_box" name="buttons">
+                            <button type="object" class="oe_stat_button"
+                                    icon="fa-users"
+                                    name="open_attendees">
+                                <div class="o_form_field o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="attendee_count"/>
+                                    </span>
+                                    <span class="o_stat_text">
+                                        Attendees
+                                    </span>
+                                </div>
                             </button>
-                        </header>
+                        </div>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1><field name="name" /></h1>
+                        </div>
                         <group>
-                            <field name="name"/>
                             <field name="responsible_id" />
                             <field name="level" />
                         </group>
@@ -43,8 +55,6 @@
                                         <field name="duration" />
                                         <field name="percentage_per_day" />
                                         <field name="seats" />
-                                        <field name="attendee_ids" invisible="1"/>
-                                        
                                     </tree>
                                 </field>
                             </page>
@@ -61,12 +71,17 @@
         </record>
 
         <!-- Top menu item -->
-        <menuitem name="Academy" id="menu_root"/>
+        <menuitem name="Academy" id="menu_root" web_icon="fa fa-graduation-cap,#FFFFFF,#51CAB2"
+        />
         <!-- menu categories -->
-        <menuitem name="Courses" id="menu_course_top" parent="menu_root"/>
+        <menuitem 
+            name="Courses" 
+            id="menu_course_top" 
+            parent="menu_root"
+            />
         <!-- actions -->
         <menuitem name="Courses" id="menu_course" parent="menu_course_top"
-                            action="action_course"/>
+                            action="action_course" />
 
     </data>
 </odoo>

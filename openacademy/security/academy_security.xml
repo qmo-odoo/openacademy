@@ -1,0 +1,56 @@
+<odoo>
+    <data noupdate="0">
+        <record id="group_academy_student" model="res.groups">
+            <field name="name">students</field>
+            <field name="category_id" ref="base.module_category_academy"/>
+            <field name="implied_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        </record>
+
+         <record id="group_academy_experienced_student" model="res.groups">
+            <field name="name">experienced Students</field>
+            <field name="category_id" ref="base.module_category_academy"/>
+        </record>
+
+         <record id="group_academy_maester" model="res.groups">
+            <field name="name">Maesters</field>
+            <field name="category_id" ref="base.module_category_academy"/>
+            <field name="implied_ids" eval="[(6,0,[ref('group_academy_student')])]"/>
+        </record>
+
+         <record id="group_academy_archmaester" model="res.groups">
+            <field name="name">Archmaesters</field>
+            <field name="category_id" ref="base.module_category_academy"/>
+            <field name="implied_ids" eval="[(6,0,[ref('group_academy_maester')])]"/>
+        </record>
+
+       
+    </data>
+    <data noupdate="1">
+     
+        <record model="ir.rule" id="admin_rule">
+            <field name="name">Admin can do everything</field>
+            <field name="model_id" ref="model_openacademy_course" />
+            <field name="groups" eval="[(4,ref('group_academy_archmaester'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        
+
+        <record model="ir.rule" id="academy_maester_see_sessions">
+            <field name="name">Only responsible can modify</field>
+            <field name="model_id" ref="model_openacademy_course" />
+            <field name="groups" eval="[(4,ref('group_academy_maester'))]"/>
+             <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="1"/>
+            <field name="domain_force">[('responsible_id.id', '=', user.id)]</field>
+        </record>
+
+       
+    </data>
+</odoo>

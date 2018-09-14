@@ -19,7 +19,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'mail', 'board'],
+    'depends': ['base', 'mail','board'],
 
     # always loaded
     'data': [
@@ -33,6 +33,8 @@
         'views/courses_kanban.xml',
         'wizard/add_attendee_view.xml',
         'report/board.xml',
+        'report/session_invite_templates.xml',
+        'report/invite_report.xml',
         'data/partner.xml',
     ],
     # only loaded in demonstration mode

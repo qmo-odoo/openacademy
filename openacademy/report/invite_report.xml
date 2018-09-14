@@ -1,0 +1,9 @@
+<odoo>
+    <report 
+        id="report_session_invite"
+        name="openacademy.session_invite_template"
+        model="openacademy.invite.wizard"
+        string="Invite to session"
+        report_type="qweb-pdf"
+        />
+</odoo>

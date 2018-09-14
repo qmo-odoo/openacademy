@@ -27,6 +27,7 @@
       <field name="arch" type="xml">
         <form>
           <header>
+            <button type="action" name="send_invites" string="Send invites"/>
             <button name="draft" type="workflow"
                 string="Reset to draft"
                 attrs="{'invisible' : [('state', '=', 'draft')] }"  groups="openacademy.group_manager" />
@@ -36,31 +37,29 @@
             <button name="done" type="workflow"
                 string="Mark as done" attrs="{'invisible' : [('state', 'in', ('draft', 'done'))] }"
                 class="oe_highlight"  groups="openacademy.group_manager"/>
-
-              <field name="state" widget="statusbar"/>
           </header>
           <sheet>
-                <button type="object" name="action_add_invoice" string="Invoice" attrs="{'invisible': [('is_paid','=', True)]}"/>
-                <group>
-                    <group>
+              <group>
+                  <group>
+                        <field name="state" invisible="1"/>
+                        <field name="is_paid" invisible="1"/>
                         <field name="name"/>
                         <field name="course_id" />
                         <field name="responsible_id" />
                         <field name="level" />
                         <field name="instructor_id" domain="['&amp;', ('instructor', '=', True), ('level', '&gt;=', level)]" />
                         <field name="active" />
-                        <field name="is_paid" />
-                    </group>
-                    <group>
-                        <field name="start_date" />
-                        <field name="end_date" />
-                        <field name="duration" />
-                        <label for="percentage_per_day" string="Percentage per day" groups="openacademy.group_manager"/>
-                        <field name="percentage_per_day" nolabel="1" groups="openacademy.group_manager"/>
-                        <field name="seats" />
-                        <field name="taken_seats" widget="progressbar"/>
-                    </group>
-                </group>
+                  </group>
+                  <group>
+                      <field name="start_date" />
+                      <field name="end_date" />
+                      <field name="duration" />
+                      <label for="percentage_per_day" string="Percentage per day" groups="openacademy.group_manager"/>
+                      <field name="percentage_per_day" nolabel="1" groups="openacademy.group_manager"/>
+                      <field name="seats" />
+                      <field name="taken_seats" widget="progressbar"/>
+                  </group>
+              </group>
               <label for="attendee_ids"/>
               <field name="attendee_ids"/>
           </sheet>
@@ -183,6 +182,32 @@
             </kanban>
         </field>
     </record>
+
+    <record id="session_invite_wizard_form" model="ir.ui.view">
+        <field name="name">session.invite.wizard.form</field>
+        <field name="model">openacademy.invite.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <h1>Invite students to the session</h1>
+                </header>
+                <field name="student_ids"/>
+                <footer>
+                    <button type="object" name="print_report" string="Send"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window 
+        id="send_invites"
+        name="Send invites"
+        res_model="openacademy.invite.wizard"
+        src_model="openacademy.session"
+        view_mode="form"
+        target="new"
+        key2="client_action_multi"
+    />
 
 
 

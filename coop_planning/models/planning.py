@@ -10,7 +10,6 @@ def float_to_time(f):
     decimal, integer = math.modf(f)
     return "%s:%s" % (str(int(integer)).zfill(2), str(int(round(decimal * 60))).zfill(2))
 
-
 def floatime_to_hour_minute(f):
     decimal, integer = math.modf(f)
     return int(integer), int(round(decimal * 60))
@@ -18,18 +17,40 @@ def floatime_to_hour_minute(f):
 
 class TaskType(models.Model):
     _name = 'coopplanning.task.type'
-    _rec_name = ''
 
     name = fields.Char()
     description = fields.Text()
     area = fields.Char()
     active = fields.Boolean(default=True)
-
-    display_name = fields.Char(compute="get_display_name")
+    full_name = fields.Char(compute='_get_full_name')
 
     @api.depends('name', 'description')
-    def get_display_name(self):
-        self.display_name = "{0} : {1}".format(self.name, self.description) 
+    def _get_full_name(self):
+        for task_type in self:
+            if task_type.description:
+                task_type.full_name = '%s / %s' % (task_type.name, task_type.description)
+            else:
+                task_type.full_name = task_type.name
+
+    def name_get(self):
+        rec = []
+        for task_type in self:
+            rec.append([task_type.id, task_type.full_name])
+        return rec
+
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        domain = []
+        if name:
+            domain = [
+                '|',
+                ('name', operator, name + '%'),
+                ('description', operator, name),
+            ]
+
+        task_type = self.search(domain + args, limit=limit)
+        return task_type.name_get()
 
 
 class DayNumber(models.Model):

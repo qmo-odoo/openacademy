@@ -19,5 +19,4 @@ class Partner(models.Model):
         'res.country',
         'Nationality',
     )
-    birthdate =  fields.Date('Birthdate')
-
+    birthdate =  fields.Date('Birthdate',)

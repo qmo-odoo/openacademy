@@ -55,19 +55,12 @@ class Session(models.Model):
     _order = 'name'
 
     name = fields.Char(required=True)
-    start_date = fields.Date(default=lambda self: fields.Date.today())
-    end_date = fields.Date(
-        string='End date', store=True,
-        compute='_get_end_date',
-        inverse='_set_end_date'
-        )
+    start_date = fields.Date(default=lambda self : fields.Date.today())
+    end_date = fields.Date(string='End date', store=True, compute='_get_end_date', inverse='_set_end_date')
     active = fields.Boolean(default=True)
     duration = fields.Float(digits=(6, 2), help="Duration in days", default=1)
     seats = fields.Integer(string="Number of seats")
-    instructor_id = fields.Many2one(
-        'res.partner',
-        string="Instructor")
-    # No ondelete = set null
+    instructor_id = fields.Many2one('res.partner', string="Instructor") #No ondelete = set null
     course_id = fields.Many2one('openacademy.course', ondelete='cascade', string="Course", required=True)
     attendee_ids = fields.Many2many('res.partner', string="Attendees", domain=[('is_company', '=', False)])
     taken_seats = fields.Float(string="Taken seats", compute='_taken_seats')
@@ -87,20 +80,7 @@ class Session(models.Model):
                     ('done', "Done"),
                     ], default='draft')
 
-    is_paid = fields.Boolean('Is paid', default=False)
-
-    @api.multi
-    def action_add_invoice(self):
-        if not self.instructor_id.invoice_id:
-            invoice = self.env['openacademy.invoice'].create({
-                            'partner_id': self.id
-                        })
-            self.instructor_id.invoice_id = invoice
-        invoice_line = self.env['openacademy.invoiceline'].create({
-            'amount': self.course_id.price
-            })
-        self.instructor_id.invoice_id.invoiceline_ids |= invoice_line
-        self.is_paid = True
+    is_paid = fields.Boolean('Is paid')
 
     def _warning(self, title, message):
         return {
@@ -120,7 +100,6 @@ class Session(models.Model):
 
     @api.depends('attendee_ids')
     def _get_attendees_count(self):
-        import pdb; pdb.set_trace()
         for session in self:
             session.attendees_count = len(session.attendee_ids)
 

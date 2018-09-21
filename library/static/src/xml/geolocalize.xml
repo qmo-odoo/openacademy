@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="geolocalize_template" xml:space="preserve">
+
+    <t t-name="library.GeolocalizeButton">
+        <button type="button" class="btn btn-primary o_geolocalize">Geolocalize</button>
+        <button type="button" class="btn btn-primary o_pay">Pay Amount Owed</button>
+    </t>
+    <t t-name="library.systray_input">
+        <li  class="o_library_systray_item">
+            <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="Search by id" href="#">
+                <i class="fa fa-search"></i>
+            </a>
+            <ul class="o_library_systray_dropdown dropdown-menu" role="menu" style="{width: 500px;}">
+                 <li>
+                    <div>
+                        <input placeholder="Customer id" class="o_input" name="partner_id" type="text"/>
+                    </div>
+                </li>
+            </ul>
+            <!-- <input placeholder="Customer id" class="o_input" id="test" name="partner_id" type="text"/> -->
+        </li>
+    </t>
+    
+
+
+    <!-- <t t-name="mail.chat.MessagingMenu">
+        <li class="o_mail_navbar_item">
+            <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="Conversations" href="#">
+                <i class="fa fa-comments"/> <span class="o_notification_counter badge"/>
+            </a>
+            <ul class="o_mail_navbar_dropdown dropdown-menu" role="menu">
+                <li t-if="widget.isMobile">
+                    <div class="o_mail_navbar_mobile_header">
+                        <button type="button" class="btn btn-default btn-sm o_new_message"> New message </button>
+                    </div>
+                </li>
+                <li t-if="!widget.isMobile" class="o_mail_navbar_dropdown_top">
+                    <div>
+                        <button type="button" class="btn btn-sm o_filter_button active"> All </button>
+                        <button type="button" class="btn btn-sm o_filter_button" data-filter='chat'> Chat </button>
+                        <button type="button" class="btn btn-sm o_filter_button" data-filter='channels'> Channels </button>
+                    </div>
+                    <button type="button" class="btn btn-sm o_new_message"> New message </button>
+                </li>
+                <li class="o_mail_navbar_dropdown_channels"/>
+                <li t-if="widget.isMobile">
+                    <div class="o_mail_mobile_tabs">
+                        <div class="o_mail_mobile_tab o_filter_button active">
+                            <span class="fa fa-envelope"/>
+                            <span class="o_tab_title">All</span>
+                        </div>
+                        <div class="o_mail_mobile_tab o_filter_button" data-filter='chat'>
+                            <span class="fa fa-user"/>
+                            <span class="o_tab_title">Chat</span>
+                        </div>
+                        <div class="o_mail_mobile_tab o_filter_button" data-filter='channels'>
+                            <span class="fa fa-users"/>
+                            <span class="o_tab_title">Channels</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </li>
+    </t> -->
+
+</templates>

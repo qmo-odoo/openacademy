@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <template id="assets_backend" name="library assets backend" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/library/static/src/js/chart_widget.js"></script>
+            <script type="text/javascript" src="/library/static/src/js/client_action.js"></script>
+            <script type="text/javascript" src="/library/static/src/js/custom_integer.js"></script>
+            <script type="text/javascript" src="/library/static/src/js/geolocalize_widget.js"></script>
+            <script type="text/javascript" src="/library/static/src/js/systray.js"></script>
+            <script type="text/javascript" src="/library/static/src/js/home_message.js"></script>
+            <script type="text/javascript" src="/library/static/src/js/custom_kanban.js"></script>
+        </xpath>
+
+        <xpath expr="//link[last()]" position="after">
+            <link rel="stylesheet" type="text/less" href="/library/static/src/less/library.less"/>
+        </xpath>
+    </template>
+
+    <template id="qunit_suite" inherit_id="web.qunit_suite">
+        <xpath expr="//t[@t-set='head']" position="inside">
+            <script src="/library/static/tests/is_late_test.js" type="text/javascript" />
+        </xpath>
+    </template>
+
+</odoo>

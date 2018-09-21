@@ -6,7 +6,7 @@
         Library management""",
 
     'description': """
-        Manage a Library: customers, books, etc.
+        Manage a Library: customers, books, etc....
     """,
 
     'author': "Odoo",
@@ -17,20 +17,33 @@
     # for the full list
     'category': 'Training',
     'version': '0.1',
+    'application': True,
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'product', 'website'],
+    'depends': ['base', 'product', 'web_enterprise', 'base_geolocalize'],
 
     # always loaded
     'data': [
+        "assets.xml",
         "data/library_data.xml",
+        "data/cron.xml",
+        "data/prices.xml",
         "views/menus.xml",
         "views/customer.xml",
         "views/book.xml",
         "views/author.xml",
         "views/rental.xml",
-        "templates/rental_page_template.xml"
+        "views/payment.xml",
+        "views/price.xml",
+        "views/dashboard.xml",
     ],
     # only loaded in demonstration mode
     'demo': [],
+
+    # static templates
+    'qweb': [
+        "static/src/xml/dashboard.xml",
+        "static/src/xml/geolocalize.xml",
+        "static/src/xml/custom_kanban.xml"
+    ],
 }

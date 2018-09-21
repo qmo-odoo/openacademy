@@ -7,6 +7,9 @@
             <field name="model">product.product</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <field name="book_state" widget="statusbar" nolabel="1" statusbar_visible="available,rented,lost" clickable="True"/>
+                    </header>
                     <sheet>
                         <field name="image" widget='image' class="oe_left oe_avatar" />
                         <div class="oe_title oe_left">
@@ -19,6 +22,9 @@
                             <field name="edition_date"/>
                             <field name="isbn"/>
                             <field name="publisher_id"/>
+                            <field name="acquisition_year" widget="FieldInteger_custom"/>
+                           
+                            <field name="acquisition_price"/>
                         </group>
                         <notebook>
                             <page string="Rentals" name="rentals" >
@@ -45,6 +51,7 @@
                     <field name="edition_date"/>
                     <field name="author_ids"/>
                     <field name="publisher_id"/>
+                    <field name="acquisition_year" widget="FieldInteger_custom"/>
                 </tree>
             </field>
         </record>
@@ -66,6 +73,44 @@
                     'view_id': ref('library.book_view_form_id'),
                     }),
                 ]"/>
+        </record>
+
+        <record model="ir.ui.view" id="book_search_view">
+            <field name="name">book search view</field>
+            <field name="model">product.product</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="book"/>
+                    <field name="book_state"/>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_lost_books">
+            <field name="name">Lost Books</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('book','=',True)]</field>
+            <field name="context">{'default_book': True, 'search_default_book_state': 'lost'}</field>
+            <field name="search_view_id" ref="book_search_view"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_available_books">
+            <field name="name">Available Books</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('book','=',True)]</field>
+            <field name="context">{'default_book': True, 'search_default_book_state': 'available'}</field>
+            <field name="search_view_id" ref="book_search_view"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_rented_books">
+            <field name="name">Rented Books</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('book','=',True)]</field>
+            <field name="context">{'default_book': True, 'search_default_book_state': 'rented'}</field>
+            <field name="search_view_id" ref="book_search_view"/>
         </record>
 
         <!-- actions -->

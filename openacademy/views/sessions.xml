@@ -2,7 +2,7 @@
 <odoo>
   <data>
 
-    <record model="ir.ui.view" id="openacademy.session_view_list">
+    <record model="ir.ui.view" id="session_view_list">
       <field name="name">openacademy session list</field>
       <field name="model">openacademy.session</field>
       <field name="arch" type="xml">
@@ -21,34 +21,32 @@
       </field>
     </record>
 
-    <record model="ir.ui.view" id="openacademy.session_view_form">
+    <record model="ir.ui.view" id="session_view_form">
       <field name="name">openacademy session form</field>
       <field name="model">openacademy.session</field>
       <field name="arch" type="xml">
         <form>
           <header>
-            <button type="action" name="send_invites" string="Send invites"/>
-            <button name="draft" type="workflow"
+            <button name="action_draft" type="object"
                 string="Reset to draft"
                 attrs="{'invisible' : [('state', '=', 'draft')] }"  groups="openacademy.group_manager" />
-            <button name="confirm" type="workflow"
+            <button name="action_confirm" type="object"
                 string="Confirm" attrs="{'invisible' : [('state', 'in', ('confirmed', 'done'))] }"
                 class="oe_highlight"  groups="openacademy.group_manager"/>
-            <button name="done" type="workflow"
+            <button name="action_done" type="object"
                 string="Mark as done" attrs="{'invisible' : [('state', 'in', ('draft', 'done'))] }"
                 class="oe_highlight"  groups="openacademy.group_manager"/>
+            <field name="state" widget="statusbar"/>
           </header>
           <sheet>
               <group>
                   <group>
-                        <field name="state" invisible="1"/>
-                        <field name="is_paid" invisible="1"/>
-                        <field name="name"/>
-                        <field name="course_id" />
-                        <field name="responsible_id" />
-                        <field name="level" />
-                        <field name="instructor_id" domain="['&amp;', ('instructor', '=', True), ('level', '&gt;=', level)]" />
-                        <field name="active" />
+                      <field name="name"/>
+                      <field name="course_id" />
+                      <field name="responsible_id" />
+                      <field name="level" />
+                      <field name="instructor_id" domain="['&amp;', ('instructor', '=', True), ('level', '&gt;=', level)]" />
+                      <field name="active" />
                   </group>
                   <group>
                       <field name="start_date" />
@@ -61,7 +59,21 @@
                   </group>
               </group>
               <label for="attendee_ids"/>
-              <field name="attendee_ids"/>
+              <field name="attendee_ids" readonly="1">
+                <tree>
+                    <field name="partner_id" />
+                    <field name="state" />
+                    <button name="action_draft" type="object"
+                        string="Reset to draft"
+                        attrs="{'invisible' : [('state', '=', 'draft')] }"/>
+                    <button name="action_confirm" type="object"
+                        string="Confirm" attrs="{'invisible' : [('state', 'in', ('confirmed', 'done'))] }"
+                        class="oe_highlight"  />
+                    <button name="action_done" type="object"
+                        string="Mark as done" attrs="{'invisible' : [('state', 'in', ('draft', 'done'))] }"
+                        class="oe_highlight"  />
+                </tree>
+              </field>
           </sheet>
          </form>
       </field>
@@ -81,7 +93,7 @@
         </field>
     </record>
 
-    <record model="ir.ui.view" id="openacademy.session_view_search">
+    <record model="ir.ui.view" id="session_view_search">
       <field name="name">openacademy session search</field>
       <field name="model">openacademy.session</field>
       <field name="arch" type="xml">
@@ -124,7 +136,7 @@
     </record>
 
     <record model="ir.ui.view" id="openacademy_session_pivot_view">
-        <field name="name">openacademy.session.pivot</field>
+        <field name="name">session pivot</field>
         <field name="model">openacademy.session</field>
         <field name="arch" type="xml">
             <pivot string="Participations by Courses">
@@ -134,104 +146,27 @@
         </field>
     </record>
 
-    <record model="ir.ui.view" id="openacademy.session_view_kaban">
-        <field name="name">openacademy.session_view_kaban</field>
-        <field name="model">openacademy.session</field>
-        <field name="arch" type="xml">
-            <kanban default_group_by="course_id">
-                <field name="color"/>
-                <field name="attendee_ids" />
-                <templates>
-                    <t t-name="kanban-box">
-                        <div t-attf-class="oe_kanban_color_{{kanban_getcolor(record.color.raw_value)}} oe_kanban_global_click_edit
-                            oe_semantic_html_override oe_kanban_card {{record.group_fancy==1
-                            ? 'oe_kanban_card_fancy' : ''}}">
-                             <div class="o_dropdown_kanban dropdown" groups="openacademy.group_manager">
-                                <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
-                                    <span class="fa fa-bars fa-lg"/>
-                                </a>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                                    <t t-if="widget.editable"><li><a type="edit">Edit Session</a></li></t>
-                                    <t t-if="widget.deletable"><li><a type="delete">Delete</a></li></t>
-                                    <li><ul class="oe_kanban_colorpicker" data-field="color"/></li>
-                                </ul>
-                            </div>
-                            <div t-attf-class="oe_kanban_content">
-                                <!-- title -->
-                                Session name:
-                                <field name="name"/>
-                                <br/>
-                                Start date:
-                                <field name="start_date"/>
-                                <br/>
-                                duration:
-                                <field name="duration"/>
-                            </div>
-
-                            <div class="oe_kanban_project_avatars">
-                                <t t-foreach="record.attendee_ids.raw_value.slice(0,11)"
-                                    t-as="attendee">
-                                   <img
-                                   t-att-src="kanban_image('res.partner', 'image_small', attendee)"
-                                   t-att-data-member_id="attendee" style="width:30px"/>
-                                </t>
-                            </div>
-                        </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
-
-    <record id="session_invite_wizard_form" model="ir.ui.view">
-        <field name="name">session.invite.wizard.form</field>
-        <field name="model">openacademy.invite.wizard</field>
-        <field name="arch" type="xml">
-            <form>
-                <header>
-                    <h1>Invite students to the session</h1>
-                </header>
-                <field name="student_ids"/>
-                <footer>
-                    <button type="object" name="print_report" string="Send"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
-    <act_window 
-        id="send_invites"
-        name="Send invites"
-        res_model="openacademy.invite.wizard"
-        src_model="openacademy.session"
-        view_mode="form"
-        target="new"
-        key2="client_action_multi"
-    />
-
-
-
-    <record model="ir.actions.act_window" id="openacademy.action_session">
+    <record model="ir.actions.act_window" id="action_session">
       <field name="name">openacademy session</field>
       <field name="res_model">openacademy.session</field>
-      <field name="view_mode">kanban,tree,form,calendar,pivot,graph</field>
+      <field name="view_mode">tree,form,calendar,pivot,graph</field>
     </record>
 
     <!-- actions -->
-    <menuitem name="Sessions" id="openacademy.menu_session" parent="openacademy.menu_course_top"
-              action="openacademy.action_session"/>
+    <menuitem name="Sessions" id="menu_session" parent="menu_course_top"
+              action="action_session"/>
 
-    <record model="ir.actions.act_window" id="openacademy.action_session_schedule">
+    <record model="ir.actions.act_window" id="action_session_schedule">
       <field name="name">openacademy session schedule</field>
       <field name="res_model">openacademy.session</field>
       <field name="view_mode">gantt</field>
       <field name="context">{'search_default_by_instructor' : 1 }</field>
     </record>
 
-    <menuitem name="Scheduling" id="openacademy.menu_scheduling"
-              parent="openacademy.menu_root" groups="group_manager" />
-    <menuitem name="Sessions" id="openacademy.menu_session_scheduling"
-              parent="openacademy.menu_scheduling"
-              action="openacademy.action_session_schedule"/>
+    <menuitem name="Scheduling" id="menu_scheduling"
+              parent="menu_root" groups="group_manager" />
+    <menuitem name="Sessions" id="menu_session_scheduling"
+              parent="menu_scheduling"
+              action="action_session_schedule"/>
   </data>
 </odoo>

@@ -1,4 +1,8 @@
-<odoo noupdate="1">
+<odoo noupdate="0">
+    <record id="coopplanning_planning_s1" model="coopplanning.planning">
+      <field name="name">Week 1</field>
+    </record>
+
     <record id="coopplanning_task_template_d30" model="coopplanning.task.template">
       <field name="name">Pos : Morning 1</field>
       <field name="day_nb_id" ref="day_3"/>
@@ -7,6 +11,7 @@
       <field name="end_time">10.0</field>
       <field name="worker_nb">2</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
     <record id="coopplanning_task_template_d31" model="coopplanning.task.template">
       <field name="name">Pos : Morning 2</field>
@@ -16,6 +21,7 @@
       <field name="end_time">12.0</field>
       <field name="worker_nb">3</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
     <record id="coopplanning_task_template_d311" model="coopplanning.task.template">
       <field name="name">Pos : Morning</field>
@@ -25,6 +31,7 @@
       <field name="end_time">12.0</field>
       <field name="worker_nb">3</field>
       <field eval="False" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
 
     <record id="coopplanning_task_template_d32" model="coopplanning.task.template">
@@ -35,6 +42,7 @@
       <field name="end_time">19.0</field>
       <field name="worker_nb">2</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
     <record id="coopplanning_task_template_d33" model="coopplanning.task.template">
       <field name="name">Unload Truck</field>
@@ -44,6 +52,7 @@
       <field name="end_time">8.0</field>
       <field name="worker_nb">1</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
 
 
@@ -55,6 +64,7 @@
       <field name="end_time">10.0</field>
       <field name="worker_nb">2</field>
       <field eval="False" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
     <record id="coopplanning_task_template_d11" model="coopplanning.task.template">
       <field name="name">Pos : Morning 2</field>
@@ -64,6 +74,7 @@
       <field name="end_time">12.0</field>
       <field name="worker_nb">3</field>
       <field eval="False" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
     <record id="coopplanning_task_template_d111" model="coopplanning.task.template">
       <field name="name">Pos : Morning</field>
@@ -73,6 +84,7 @@
       <field name="end_time">12.0</field>
       <field name="worker_nb">3</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
 
     <record id="coopplanning_task_template_d12" model="coopplanning.task.template">
@@ -83,6 +95,7 @@
       <field name="end_time">19.0</field>
       <field name="worker_nb">2</field>
       <field eval="False" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
     <record id="coopplanning_task_template_d13" model="coopplanning.task.template">
       <field name="name">Unload Truck</field>
@@ -92,6 +105,7 @@
       <field name="end_time">8.0</field>
       <field name="worker_nb">1</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
 
 
@@ -104,6 +118,7 @@
       <field name="end_time">10.0</field>
       <field name="worker_nb">2</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
     <record id="coopplanning_task_template_d21" model="coopplanning.task.template">
       <field name="name">Pos : Morning 2</field>
@@ -113,6 +128,7 @@
       <field name="end_time">12.0</field>
       <field name="worker_nb">3</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
     <record id="coopplanning_task_template_d211" model="coopplanning.task.template">
       <field name="name">Pos : Morning</field>
@@ -122,6 +138,7 @@
       <field name="end_time">12.0</field>
       <field name="worker_nb">3</field>
       <field eval="False" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
 
     <record id="coopplanning_task_template_d22" model="coopplanning.task.template">
@@ -132,6 +149,7 @@
       <field name="end_time">19.0</field>
       <field name="worker_nb">2</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
     <record id="coopplanning_task_template_d23" model="coopplanning.task.template">
       <field name="name">Unload Truck</field>
@@ -141,5 +159,6 @@
       <field name="end_time">8.0</field>
       <field name="worker_nb">1</field>
       <field eval="True" name="active"/>
+      <field name="planning_id" ref="coopplanning_planning_s1" />
     </record>
 </odoo>

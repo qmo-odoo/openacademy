@@ -19,15 +19,18 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'contacts'],
+    'depends': ['base', 'contacts', 'mail'],
 
     # always loaded
     'data': [
+        "security/ir.model.access.csv",
         "views/task_template.xml",
         "views/task.xml",
-        "views/configuration.xml",
+        "views/planning.xml",
+        "wizard/instanciate_planning.xml",
+        "data/coopplanning_data.xml",
         "data/task_template_demo.xml",
     ],
     # only loaded in demonstration mode
-    'demo': []
+    'demo': [],
 }

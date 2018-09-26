@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta, datetime
+from odoo import models, fields, api, exceptions, _
+
+from pytz import UTC, timezone
 import math
-from datetime import datetime
-from pytz import UTC
-
-from odoo import models, fields, api
-
 
 def float_to_time(f):
     decimal, integer = math.modf(f)
@@ -14,15 +13,13 @@ def floatime_to_hour_minute(f):
     decimal, integer = math.modf(f)
     return int(integer), int(round(decimal * 60))
 
-
 class TaskType(models.Model):
     _name = 'coopplanning.task.type'
 
-    name = fields.Char(string="Type name")
+    name = fields.Char()
     description = fields.Text()
     area = fields.Char()
     active = fields.Boolean(default=True)
-
 
 class DayNumber(models.Model):
     _name = 'coopplanning.daynumber'
@@ -31,21 +28,33 @@ class DayNumber(models.Model):
     number = fields.Integer("Day Number", help="From 1 to N, When you will instanciate your planning, Day 1 will be the start date of the instance, Day 2 the second, etc...")
     active = fields.Boolean(default=True)
 
+class Planning(models.Model):
+    _name = 'coopplanning.planning'
+
+    name = fields.Char()
+    task_template_ids = fields.One2many('coopplanning.task.template', 'planning_id')
+
+    @api.multi
+    def open_task_generation_wizard(self):
+        self.ensure_one()
+        return {
+           'name': _('Generate Task'),
+           'type': 'ir.actions.act_window',
+           'view_type': 'form',
+           'view_mode': 'form',
+           'res_model': 'coopplanning.instanciate_planning.wizard',
+           'target': 'new',
+        }
 
 class TaskTemplate(models.Model):
     _name = 'coopplanning.task.template'
-    _order = 'day_number,start_time'
 
     name = fields.Char(required=True)
+    planning_id = fields.Many2one('coopplanning.planning', required=True)
     day_nb_id = fields.Many2one('coopplanning.daynumber', string='Day')
     task_type_id = fields.Many2one('coopplanning.task.type', string="Task Type")
     start_time = fields.Float()
     end_time = fields.Float()
-
-    
-    task_type_name = fields.Char(related="task_type_id.name")
-    task_type_area = fields.Char(related="task_type_id.area")
-    day_number = fields.Integer(related="day_nb_id.number", store=True)
 
     duration = fields.Float(compute='_get_duration', help="Duration in Hour", store=True)
     worker_nb = fields.Integer(string="Number of worker", help="Max number of worker for this task", default=1)
@@ -53,6 +62,7 @@ class TaskTemplate(models.Model):
     active = fields.Boolean(default=True)
     floating = fields.Boolean("Floating Task", help="This task will be not assigned to someone and will be available for non recurring workers")
 
+    @api.multi
     @api.depends('start_time', 'end_time')
     def _get_duration(self):
         for rec in self:
@@ -61,8 +71,11 @@ class TaskTemplate(models.Model):
     @api.multi
     def generate_task(self):
         self.ensure_one()
-        task = self.env['coopplanning.task']
         today = datetime.today()
+        self._generate_task_day(today)
+
+    def _generate_task_day(self, today):
+        task = self.env['coopplanning.task']
         h_begin, m_begin = floatime_to_hour_minute(self.start_time)
         h_end, m_end = floatime_to_hour_minute(self.end_time)
         for i in xrange(0, self.worker_nb):

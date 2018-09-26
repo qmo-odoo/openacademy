@@ -9,12 +9,13 @@ class Partner(models.Model):
     session_ids = fields.Many2many('openacademy.session', string="Attended Sessions", readonly=True)
     level = fields.Integer(compute="_get_level", string="Teacher", store=True)
 
+    @api.one
     @api.depends('category_id', 'category_id.name')
     def _get_level(self):
-        for partner in self:
-            levels = []
-            for categ in partner.category_id:
-                if "Teacher / Level" in categ.name:
-                    levels.append(int(categ.name.split(' ')[-1]))
+        level = []
+        for categ in self.category_id:
+            if "Teacher / Level" in categ.name:
+                level.append(int(categ.name.split(' ')[-1]))
 
-            partner.level = max(levels) if levels else 0
+        self.level = max(level) if level else 0
+

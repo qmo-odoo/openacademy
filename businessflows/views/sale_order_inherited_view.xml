@@ -1,0 +1,15 @@
+<odoo>
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <header>
+                <button name="action_to_manager" string="Send to manager" type="object" states="draft,sent" class="btn-primary"/>
+                <button name="action_confirm" string="Confirm sale" type="object" states="manager" class="btn-primary"/>
+                <xpath expr="//field[@name='state']" position="replace">
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,manager,sale"/>
+                </xpath>
+            </header>
+        </field>
+    </record>
+</odoo>

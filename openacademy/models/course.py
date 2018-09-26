@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
-
 from odoo import models, fields, api, exceptions, _
-
+from odoo.exceptions import UserError
 
 class Course(models.Model):
     _name = 'openacademy.course'
-    _inherit = 'mail.thread'
+    _inherit = ['mail.thread', 'mail.alias.mixin']
 
     name = fields.Char()
     description = fields.Text()
@@ -14,13 +13,7 @@ class Course(models.Model):
     session_ids = fields.One2many('openacademy.session', 'course_id', string="Sessions")
     level = fields.Selection([(1, 'Easy'), (2, 'Medium'), (3, 'Hard')], string="Difficulty Level")
     color = fields.Integer()
-    session_count = fields.Integer("Session Count", compute="_compute_session_count")
-
-    fname = fields.Char('Filename')
-    datas = fields.Binary('File')
-    currency_id = fields.Many2one('res.currency', 'Currency')
-
-    price = fields.Float('Price')
+    session_count = fields.Integer("Session Count", compute="_compute_session_count")   
 
     _sql_constraints = [
        ('name_description_check', 'CHECK(name != description)',
@@ -30,7 +23,7 @@ class Course(models.Model):
         _("The course title must be unique")),
     ]
 
-    @api.multi
+    @api.one
     def copy(self, default=None):
         default = dict(default or {})
 
@@ -44,64 +37,123 @@ class Course(models.Model):
         default['name'] = new_name
         return super(Course, self).copy(default)
 
+    @api.one
     @api.depends('session_ids')
     def _compute_session_count(self):
-        for course in self:
-            course.session_count = len(course.session_ids)
+        self.session_count = len(self.session_ids)
+
+    @api.model
+    def create(self, values):
+        new_course = super(Course, self).create(values)
+        new_course.message_subscribe_users(user_ids=new_course.responsible_id.id)
+        # teachers = []
+        # if values.get('session_ids'):
+        #     for session in new_course.session_ids:
+        #         teachers.append(session[2]['instructor_id'])
+        #     new_course.message_subscribe(partner_ids=teachers)
+        return new_course
+
+    @api.multi
+    def write(self, values):
+        old_responsible = -1
+        if values.get('responsible_id'):
+            self.message_subscribe_users(values['responsible_id'])
+            #import pdb; pdb.set_trace()
+            if self.responsible_id.partner_id not in self.session_ids.mapped('instructor_id'):
+                old_responsible = self.responsible_id.id
+        
+        res = super(Course, self).write(values)
+        if old_responsible != -1:
+            self.message_unsubscribe_users(old_responsible)
+        
+        # if values.get('session_ids'):
+        #     teachers = []
+        #     for session in self.session_ids:
+        #         #import pdb; pdb.set_trace()
+        #         teachers.append(session.instructor_id.id)
+        #     self.message_subscribe(partner_ids=teachers)
+        return res
+
+    @api.multi
+    def message_get_suggested_recipients(self):
+        recipients = super(Course, self).message_get_suggested_recipients()
+        for follower in self.session_ids.mapped('instructor_id'):
+            #import pdb; pdb.set_trace()
+            self._message_add_suggested_recipient(recipients, partner=follower, reason=_('Teacher'))
+           
+        return recipients
+    
+    @api.multi
+    def message_unsubscribe(self, partner_ids=None, channel_ids=None):
+        if self.responsible_id.partner_id.id not in partner_ids:
+            #import pdb; pdb.set_trace()
+            super(Course, self).message_unsubscribe(partner_ids, channel_ids)
+    
+
+    #ex2
+    def get_alias_model_name(self, vals):
+        return 'openacademy.attendee'
+
+    def get_alias_values(self):
+        #import pdb; pdb.set_trace()
+        values = super(Course, self).get_alias_values()
+        values['alias_defaults'] = {'course_id': self.id}
+        return values
+ 
+
+
 
 
 class Session(models.Model):
     _name = 'openacademy.session'
+    _inherit = ['mail.alias.mixin']
+
     _order = 'name'
 
     name = fields.Char(required=True)
     start_date = fields.Date(default=lambda self : fields.Date.today())
+    #end_date = fields.Date(default=lambda self : fields.Date.today())
     end_date = fields.Date(string='End date', store=True, compute='_get_end_date', inverse='_set_end_date')
     active = fields.Boolean(default=True)
     duration = fields.Float(digits=(6, 2), help="Duration in days", default=1)
     seats = fields.Integer(string="Number of seats")
     instructor_id = fields.Many2one('res.partner', string="Instructor") #No ondelete = set null
     course_id = fields.Many2one('openacademy.course', ondelete='cascade', string="Course", required=True)
-    attendee_ids = fields.Many2many('res.partner', string="Attendees", domain=[('is_company', '=', False)])
+    attendee_ids = fields.One2many('openacademy.attendee', 'session_id', string="Attendees", )
     taken_seats = fields.Float(string="Taken seats", compute='_taken_seats')
     level = fields.Selection(related='course_id.level', readonly=True)
     responsible_id = fields.Many2one(related='course_id.responsible_id', readonly=True, store=True)
     description = fields.Html()
-
+    remaining_seat = fields.Integer(string="remaining_seat", compute='_get_attendees_count', store=True)
     percentage_per_day = fields.Integer("%", default=100)
     attendees_count = fields.Integer(string="Attendees count", compute='_get_attendees_count', store=True)
     color = fields.Integer()
-
-    sequence = fields.Integer('sequence')
-
     state = fields.Selection([
                     ('draft', "Draft"),
                     ('confirmed', "Confirmed"),
                     ('done', "Done"),
                     ], default='draft')
 
-    is_paid = fields.Boolean('Is paid')
-
     def _warning(self, title, message):
-        return {
-          'warning': {
-            'title': title,
-            'message': message,
-          },
-        }
+            return {
+              'warning': {
+                'title': title,
+                'message': message,
+              },
+            }
 
+    @api.one
     @api.depends('seats', 'attendee_ids')
     def _taken_seats(self):
-        for session in self:
-            if not session.seats:
-                session.taken_seats = 0.0
-            else:
-                session.taken_seats = 100.0 * len(session.attendee_ids) / session.seats
+        if not self.seats:
+            self.taken_seats = 0.0
+        else:
+            self.taken_seats = 100.0 * self.attendees_count / self.seats
 
-    @api.depends('attendee_ids')
+    @api.one
+    @api.depends('attendee_ids', 'seats', 'attendee_ids.state')
     def _get_attendees_count(self):
-        for session in self:
-            session.attendees_count = len(session.attendee_ids)
+        self.attendees_count = len(self.attendee_ids.filtered(lambda rec: rec.state in ['confirmed', 'done']))
 
     @api.onchange('seats', 'attendee_ids')
     def _verify_valid_seats(self):
@@ -110,56 +162,147 @@ class Session(models.Model):
         if self.seats < len(self.attendee_ids):
             return self._warning(_("Too many attendees"), _("Increase seats or remove excess attendees"))
 
+    @api.one
     @api.constrains('instructor_id', 'attendee_ids')
     def _check_instructor_not_in_attendees(self):
-        for session in self:
-            if session.instructor_id and session.instructor_id in session.attendee_ids:
-                raise exceptions.ValidationError("A session's instructor can't be an attendee")
+        if self.instructor_id and self.instructor_id in self.attendee_ids.mapped('partner_id'):
+            raise exceptions.ValidationError("A session's instructor can't be an attendee")
 
+    @api.one
     @api.depends('start_date', 'duration')
     def _get_end_date(self):
-        for session in self:
-            if not (session.start_date and session.duration):
-                session.end_date = session.start_date
-            else:
-                # Add duration to start_date, but: Monday + 5 days = Saturday, so
-                # subtract one second to get on Friday instead
-                start = fields.Datetime.from_string(session.start_date)
-                duration = timedelta(days=session.duration, seconds=-1)
-                session.end_date = start + duration
+        if not (self.start_date and self.duration):
+            self.end_date = self.start_date
+            return
+        # Add duration to start_date, but: Monday + 5 days = Saturday, so
+        # subtract one second to get on Friday instead
+        start = fields.Datetime.from_string(self.start_date)
+        duration = timedelta(days=self.duration, seconds=-1)
+        self.end_date = start + duration
 
+    @api.one
     def _set_end_date(self):
-        for session in self:
-            if session.start_date and session.end_date:
-                # Compute the difference between dates, but: Friday - Monday = 4 days,
-                # so add one day to get 5 days instead
-                start_date = fields.Datetime.from_string(session.start_date)
-                end_date = fields.Datetime.from_string(session.end_date)
-                session.duration = (end_date - start_date).days + 1
+        if not (self.start_date and self.end_date):
+            return
+        # Compute the difference between dates, but: Friday - Monday = 4 days,
+        # so add one day to get 5 days instead
+        start_date = fields.Datetime.from_string(self.start_date)
+        end_date = fields.Datetime.from_string(self.end_date)
+        self.duration = (end_date - start_date).days + 1
 
+    @api.one
     def action_draft(self):
-        self.write({'state': 'draft'})
+        self.state = 'draft'
 
+    @api.one
     def action_confirm(self):
-        self.write({'state': 'confirmed'})
+        self.state = 'confirmed'
 
+    @api.one
     def action_done(self):
-        self.write({'state': 'done'})
+        self.state = 'done'
 
-    def _auto_transition(self):
-        # Don't use this in production; it may have bad performance
-        for session in self:
-            if session.taken_seats >= 50.0 and session.state == 'draft':
-                session.state = 'confirmed'
+    # def get_alias_model_name(self, vals):
+    #     return 'openacademy.attendee'
+
+    # def get_alias_values(self):
+    #     values = super(Session, self).get_alias_values()
+    #     values['alias_defaults'] = {'course_id': self.course_id.id,
+    #                                 'session_id': self.id}
+
+    #     return values
+
+class Attendee(models.Model):
+    _name = 'openacademy.attendee'
+    _inherit = ['mail.thread']
+    _rec_name = 'comment'
+
+    comment = fields.Char("Comment", help="Subject of the mail send")
+
+    partner_id = fields.Many2one('res.partner', 'Attendee Name', domain=[('is_company', '=', False)])
+    session_id = fields.Many2one('openacademy.session', 'Session')
+    course_id = fields.Many2one('openacademy.course', string="Course")
+
+    state = fields.Selection([
+                    ('draft', "Draft"),
+                    ('confirmed', "Confirmed"),
+                    ('done', "Attended"),
+                    ('cancel', "Not Attended"),
+                    ], default='draft')
+
+    _sql_constraints = [
+       ('subscribe_once_per_session', 'UNIQUE(partner_id, session_id)',
+        _("You can only subscribe a partner once to the same session.")),
+    ]
+
+    # @api.onchange('state')
+    # def onChangeState(self):
+    #     import pdb; pdb.set_trace()
+    #     mail_pool = self.env['mail.mail']
+    #     values = {
+    #         'subject': 'Partcipation to the session {}'.format(self.session_id.name),
+    #         'body': "<p>Awaiting confirmation from the manager</p>",
+    #         'body_html': "<p>Awaiting confirmation from the manager</p>",
+    #         'res_id': self.id
+    #     }
+    #     if self.state == 'draft':
+    #         msg = mail_pool.create(values)
+    #         mail_pool.send(msg)
+
 
     @api.multi
-    def write(self, vals):
-        res = super(Session, self).write(vals)
-        self._auto_transition()
-        return res
+    def action_draft(self):
+        self.ensure_one()
+        self.state = 'draft'
 
+    @api.multi
+    def action_confirm(self):
+        self.ensure_one()
+        self.state = 'confirmed'
+        #import pdb; pdb.set_trace()
+        self._send_confirmation_email()
+
+    @api.multi
+    def action_done(self):
+        self.ensure_one()
+        self.state = 'done'
+
+    @api.multi
+    def action_cancel(self):
+        self.ensure_one()
+        self.state = 'cancel'
+
+    def _send_reception_email(self):
+        template = self.env.ref('openacademy.email_template_reception')
+        self.message_post_with_template(template.id)
+        self.env['mail.template'].browse(template.id).send_mail(self.id)
+
+    
+    def _send_confirmation_email(self):
+        template = self.env.ref('openacademy.email_template_confirmation')
+        self.message_post_with_template(template.id)
+        self.env['mail.template'].browse(template.id).send_mail(self.id)
+
+    
     @api.model
     def create(self, vals):
-        rec = super(Session, self).create(vals)
-        rec._auto_transition()
-        return rec
+        res = super(Attendee, self).create(vals)
+        if res.state == 'confirmed':
+            res._send_confirmation_email()
+        else:
+            res._send_reception_email()
+        return res
+
+
+    @api.model
+    def message_new(self, msg, custom_values=None):
+        """ Override to updates the document according to the email. """
+        custom_values = dict(custom_values) or {}
+        custom_values['partner_id'] = 9
+        if 'session_id' not in custom_values and custom_values.get('course_id'):
+            session_ids = self.env['openacademy.session'].search([('start_date', '>', fields.Date.today()),('taken_seats', '<', 1.0)], order="start_date asc")
+            if session_ids:
+                custom_values['session_id'] = session_ids[0].id
+
+        return super(Attendee, self).message_new(msg, custom_values=custom_values)
+
